@@ -3,7 +3,7 @@
 // =============================================================================
 
 // Navigation & Layout
-export { Sidebar } from './Sidebar';
+export { Sidebar } from '../organisms/Sidebar';
 export { default as BreadCrumbs } from './BreadCrumbs';
 export { default as RestrictedEnvBanner } from './RestrictedEnvBanner';
 export { default as ContactUsDialog } from './ContactUsDialog';

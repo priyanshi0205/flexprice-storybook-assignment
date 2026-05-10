@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from 'react-router';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { Sidebar } from '@/components/molecules/Sidebar';
+import { Sidebar } from '@/components/organisms/Sidebar';
 import { BreadCrumbs, DebugMenu, RestrictedEnvBanner } from '@/components/molecules';
 import { CommandPalette } from '@/components/organisms';
 import AppPrefetcher from '@/components/organisms/AppPrefetcher';
