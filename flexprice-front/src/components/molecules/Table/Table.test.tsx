@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import FlexpriceTable from './Table';
+import { describe, it, expect, vi } from 'vitest';
 
 type Row = {
 	name: string;
