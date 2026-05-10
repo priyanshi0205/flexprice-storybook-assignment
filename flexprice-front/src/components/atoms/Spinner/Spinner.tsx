@@ -5,6 +5,11 @@ interface SpinnerProps {
 	className?: string;
 }
 
+/**
+ * Spinner component used to indicate loading state.
+ * Supports configurable size and optional className for styling overrides.
+ */
+
 const Spinner: React.FC<SpinnerProps> = ({ size = 24, className = '' }) => {
 	return (
 		<svg
