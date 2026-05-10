@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import Label from '../Label';
 import { sizes, SizeVariant } from '@/lib/sizing';
+import { ReactNode } from 'react';
 
 type InputVariant = 'text' | 'number' | 'formatted-number' | 'integer';
 
@@ -27,7 +28,6 @@ export const formatAmount = (amount: string, options: NumberFormatOptions = DEFA
 		...options,
 	};
 
-	// Handle negative numbers
 	const isNegative = allowNegative && amount.startsWith('-');
 	const absAmount = isNegative ? amount.slice(1) : amount;
 
@@ -35,10 +35,8 @@ export const formatAmount = (amount: string, options: NumberFormatOptions = DEFA
 	const integerPart = parts[0] || '';
 	const decimalPart = parts[1];
 
-	// Format integer part with separators
 	const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeparator);
 
-	// Combine parts
 	let result = formattedInteger;
 	if (allowDecimals && decimalPart !== undefined) {
 		result += decimalSeparator + decimalPart;
@@ -71,16 +69,16 @@ const getInputPattern = (variant: InputVariant, options: NumberFormatOptions = D
 
 interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size'> {
 	label?: string;
-	description?: React.ReactNode;
+	description?: ReactNode;
 	error?: string;
 	type?: React.HTMLInputTypeAttribute;
 	onChange?: (value: string) => void;
 	disabled?: boolean;
-	suffix?: React.ReactNode;
+	suffix?: ReactNode;
 	className?: string;
 	placeholder?: string;
 	id?: string;
-	inputPrefix?: React.ReactNode;
+	inputPrefix?: ReactNode;
 	labelClassName?: string;
 	variant?: InputVariant;
 	formatOptions?: NumberFormatOptions;
@@ -116,7 +114,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 		const isFormattedVariant = variant === 'formatted-number' || variant === 'integer';
 		const pattern = React.useMemo(() => getInputPattern(variant, formatOptions), [variant, formatOptions]);
 
-		// Handle cursor position after formatting
 		React.useEffect(() => {
 			if (cursorPosition !== null && inputRef.current) {
 				inputRef.current.setSelectionRange(cursorPosition, cursorPosition);
@@ -129,30 +126,21 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 			const oldValue = (value as string) || '';
 			const currentCursorPosition = e.target.selectionStart || 0;
 
-			// For number variants, validate and format
 			if (variant !== 'text') {
-				// Remove formatting before validation
 				if (isFormattedVariant) {
 					newValue = removeFormatting(newValue, formatOptions);
 				}
 
-				// Validate against pattern
-				if (!pattern.test(newValue)) {
-					return;
-				}
+				if (!pattern.test(newValue)) return;
 
-				// Handle cursor position for formatted variants
 				if (isFormattedVariant) {
 					const oldFormatCharCount = (oldValue.slice(0, currentCursorPosition).match(/,/g) || []).length;
 					const newFormatCharCount = (formatAmount(newValue, formatOptions).slice(0, currentCursorPosition).match(/,/g) || []).length;
-					const cursorAdjustment = newFormatCharCount - oldFormatCharCount;
-					setCursorPosition(currentCursorPosition + cursorAdjustment);
+					setCursorPosition(currentCursorPosition + (newFormatCharCount - oldFormatCharCount));
 				}
 			}
 
-			if (onChange) {
-				onChange(newValue);
-			}
+			onChange?.(newValue);
 		};
 
 		const getValue = () => {
@@ -167,21 +155,20 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
 		return (
 			<div className='space-y-1 w-full flex flex-col'>
-				{/* Label */}
 				{label && <Label label={label} disabled={disabled} labelClassName={labelClassName} htmlFor={id} />}
-				{/* Input */}
+
 				<div
 					className={cn(
 						sizes[size].height,
 						sizes[size].padding,
 						sizes[size].text,
-						sizes[size].display,
-						'w-full flex h-full group items-center rounded-[6px] border bg-background ring-offset-background placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed',
-						error ? 'border-destructive' : 'border-input focus-within:ring-ring focus-within:ring-offset-2',
-						'focus-within:border-black',
+						'w-full flex items-center rounded-[6px] border bg-background',
+						error ? 'border-destructive' : 'border-input',
 						className,
 					)}>
+					
 					{inputPrefix && <div className='mr-2'>{inputPrefix}</div>}
+
 					<input
 						{...props}
 						id={id}
@@ -190,29 +177,21 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 						disabled={disabled}
 						placeholder={placeholder}
 						className={cn(
-							'peer relative min-h-0 min-w-0 flex-1 bg-transparent outline-none ring-0 focus:outline-none placeholder:text-muted-foreground',
+							'flex-1 bg-transparent outline-none',
 							disabled && 'text-zinc-500',
-							className,
 						)}
 						onChange={handleChange}
-						ref={(element) => {
-							inputRef.current = element;
-							if (typeof ref === 'function') {
-								ref(element);
-							} else if (ref) {
-								ref.current = element;
-							}
+						ref={(el) => {
+							inputRef.current = el;
+							if (typeof ref === 'function') ref(el);
+							else if (ref) ref.current = el;
 						}}
 					/>
-					{suffix && (
-						<div className='ml-2 flex shrink-0 items-center self-stretch pl-2 text-sm tabular-nums leading-none text-muted-foreground'>
-							{suffix}
-						</div>
-					)}
+
+					{suffix && <div className='ml-2 text-muted-foreground'>{suffix}</div>}
 				</div>
-				{/* Description */}
-				{description && <p className={cn('text-sm', disabled ? 'text-zinc-500' : 'text-muted-foreground')}>{description}</p>}
-				{/* Error Message */}
+
+				{description && <p className='text-sm text-muted-foreground'>{description}</p>}
 				{error && <p className='text-sm text-destructive'>{error}</p>}
 			</div>
 		);
