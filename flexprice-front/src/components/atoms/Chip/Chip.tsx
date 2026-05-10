@@ -39,6 +39,11 @@ const CHIP_COLORS: Record<ChipVariant, ChipColorScheme> = {
 	warning: { bgColor: '#FFF7ED', textColor: '#C2410C', borderColor: '#FFF7ED' },
 };
 
+/**
+ * Reusable status chip component used for displaying states,
+ * labels, and statuses across the FlexPrice dashboard.
+ */
+
 const Chip: FC<ChipProps> = ({
 	label,
 	variant = 'default',
